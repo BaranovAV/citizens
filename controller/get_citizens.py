@@ -1,6 +1,6 @@
 from controller import base
 from model.imports import Import
-from view.citizens import json_response
+from view.get_citizens import json_response
 
 
 class Citizens(base.RestEndpoint):

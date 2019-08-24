@@ -1,4 +1,6 @@
 import json
+import os
+
 import pytest
 import requests
 import pymysql
@@ -43,10 +45,10 @@ def test_good_import():
     #     citizens[j - 1]['relatives'].append(i)
     #     citizens[j - 1]['relatives'].sort()
     #
-    # with open('test-data.txt', 'w') as f:
+    # with open(os.path.abspath('tests') + '/test-data.txt', 'w') as f:
     #     f.write(json.dumps(citizens))
     #
-    with open('test-data.txt', 'r') as f:
+    with open(os.path.abspath('tests') + '/test-data.txt', 'r') as f:
         citizens = json.loads(f.read())
 
     print(datetime.now())
@@ -68,7 +70,7 @@ def test_good_import():
 
 @pytest.mark.asyncio
 async def test_validator():
-    with open('test-data.txt', 'r') as f:
+    with open(os.path.abspath('tests') + '/test-data.txt', 'r') as f:
         citizens = {'citizens': json.loads(f.read())}
 
     from validator.import_citizens import citizens_validator
@@ -79,25 +81,25 @@ async def test_validator():
 
 @pytest.mark.parametrize("lst,out", [
     pytest.param(
-        [{'citizen_id': 1, 'relations': [2]}, {'citizen_id': 2, 'relations': [1]}, {'citizen_id': 3, 'relations': []}],
+        [{'citizen_id': 1, 'relatives': [2]}, {'citizen_id': 2, 'relatives': [1]}, {'citizen_id': 3, 'relatives': []}],
         [],
         id='GOOD'
     ),
     pytest.param(
-        [{'citizen_id': 2, 'relations': [1]}],
+        [{'citizen_id': 2, 'relatives': [1]}],
         ['2 has single linked relation with 1'],
         id='BAD'
     ),
     pytest.param(
-        [{'citizen_id': 1, 'relations': [2]}, {'citizen_id': 2, 'relations': []}],
+        [{'citizen_id': 1, 'relatives': [2]}, {'citizen_id': 2, 'relatives': []}],
         ['1 has single linked relation with 2'],
         id='BAD'
     ),
     pytest.param(
-        [{'citizen_id': 1, 'relations': [2]}, {'citizen_id': 2, 'relations': [1, 1]}],
-        ['duplicated ids found in relations for 2'],
+        [{'citizen_id': 1, 'relatives': [2]}, {'citizen_id': 2, 'relatives': [1, 1]}],
+        ['duplicated ids found in relatives for 2'],
         id='BAD'
     ),
 ])
-def test_validate(lst, out):
+def test_validate_relations(lst, out):
     assert validate_relations(lst) == out

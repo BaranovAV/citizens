@@ -1,6 +1,5 @@
 from cerberus import Validator
 from validator.base import _validate_date, _get_error_list
-from datetime import datetime
 
 
 def citizens_validator() -> 'Validator':
@@ -14,7 +13,7 @@ def citizens_validator() -> 'Validator':
                     'street': {'type': 'string', 'required': True, 'maxlength': 255},
                     'building': {'type': 'string', 'required': True, 'maxlength': 255},
                     'apartment': {'type': 'integer', 'required': True, 'min': 1, 'coerce': int},
-                    'birth_date': {'type': 'string', 'required': True, 'validator': _validate_date('%d.%m.%Y')},
+                    'birth_date': {'type': 'string', 'required': True, 'check_with': _validate_date('%d.%m.%Y')},
                     'gender': {'type': 'string', 'required': True, 'allowed': ['male', 'female']},
                     'relatives': {'type': 'list', 'minlength': 0, 'required': True, 'schema': {
                         'type': 'integer', 'min': 1, 'coerce': int}},
@@ -28,7 +27,6 @@ async def validate_by_chunks(validator, data, field, CHUNK=100):
     out_data, _errors = [], []
 
     while len(data):
-        print(datetime.now())
         chunked_data = data[:CHUNK]
         data = data[CHUNK:]
         chunked_data, _e = await _validate_chunk(validator, {field: chunked_data})
@@ -38,8 +36,6 @@ async def validate_by_chunks(validator, data, field, CHUNK=100):
             print(chunked_data)
         else:
             out_data.extend(chunked_data[field])
-
-    print(datetime.now())
 
     return out_data, _errors
 

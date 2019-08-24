@@ -2,6 +2,7 @@ from aiohttp import web
 from controller import base
 from model.imports import Import
 from validator import import_citizens
+from view.import_citizens import json_response
 
 
 class CitizensInImport(base.RestEndpoint):
@@ -15,9 +16,4 @@ class CitizensInImport(base.RestEndpoint):
             return web.json_response({'message': errors}, status=400)
 
         async with self.get_connection() as a_conn:
-            import_id = await Import.insert_citizen_list(data, a_conn)
-        return web.json_response({
-            'data': {
-                'import_id': import_id
-            }
-        }, status=201)
+            return json_response(await Import.insert_citizen_list(data, a_conn))
