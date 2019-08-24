@@ -5,6 +5,8 @@ from aiohttp.web_exceptions import HTTPMethodNotAllowed
 from aiohttp.web_request import Request
 from multidict import MultiDict
 
+from validator.base import ValidationError
+
 DEFAULT_METHODS = ('GET', 'POST', 'PUT', 'DELETE', 'PATCH')
 
 
@@ -14,14 +16,7 @@ class RestEndpoint:
     def _get_validated_data(self, validator, data):
         data = validator.normalized(data)
         if not (data is not None and validator.validate(data)):
-            raise Exception(
-                '\n'.join([
-                    '{f}: '.format(f=field) +
-                    '; '.join([
-                        '{e}'.format(e=str(err)) for err in errs
-                    ]) for field, errs in validator.errors.items()
-                ])
-            )
+            raise ValidationError(validator.errors)
         return data
 
     def get_connection(self):

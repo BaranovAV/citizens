@@ -1,12 +1,13 @@
 from aiohttp import web
 from controller import base
-from model.imports import Import
+from model.imports import Import as ImportModel
 from validator import import_citizens
+from view.imports import json_response
 
 
-class CitizenPatch(base.RestEndpoint):
+class Import(base.RestEndpoint):
 
-    async def patch(self, import_id, citizen_id):
+    async def post(self):
         data, errors = await import_citizens.validate_by_chunks(import_citizens.citizens_validator(), (await self.request.json())['citizens'], 'citizens')
 
         import_citizens.validate_relations(data)
@@ -15,7 +16,4 @@ class CitizenPatch(base.RestEndpoint):
             return web.json_response({'message': errors}, status=400)
 
         async with self.get_connection() as a_conn:
-            import_id = await Import.insert_citizen_list(data, a_conn)
-        return web.json_response({
-            'data': import_id
-        }, status=200)
+            return json_response(await ImportModel.insert_citizen_list(data, a_conn))

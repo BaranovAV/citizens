@@ -19,3 +19,9 @@ def _get_error_list(validator_errors):
             '{e}'.format(e=str(err)) for err in errs
         ]) for field, errs in validator_errors.items()
     ]
+
+
+class ValidationError(Exception):
+
+    def __init__(self, validator_errors):
+        super().__init__(','.join(_get_error_list(validator_errors)))
