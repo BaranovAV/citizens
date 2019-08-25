@@ -1,0 +1,8 @@
+db = {
+    'host': 'localhost',
+    'database': 'citizens',
+    'user': 'user',
+    'password': 'pass',
+    'autocommit': True,
+    'charset': 'utf8'
+}

@@ -1,0 +1,9 @@
+[DEFAULT]
+sources = ./migrations
+migration_table = _yoyo_migration
+batch_mode = on
+verbosity = 3
+#editor = /usr/local/bin/nano
+
+# Target database
+database = mysql://{user}:{password}@{host}/{database}
