@@ -1,17 +1,12 @@
-import json
-import os
 import pytest
 from validator.import_citizens import validate_by_chunks, validate_relations
 
 
 @pytest.mark.asyncio
-async def test_validate_by_chunks():
-    with open(os.path.abspath('tests') + '/test-data.txt', 'r') as f:
-        citizens = {'citizens': json.loads(f.read())}
-
+async def test_validate_by_chunks(citizen_list):
     from validator.import_citizens import citizens_validator
     v = citizens_validator()
-    data, _errors = await validate_by_chunks(v, citizens['citizens'], 'citizens')
+    data, _errors = await validate_by_chunks(v, citizen_list, 'citizens')
     assert _errors == []
 
 
