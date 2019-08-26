@@ -4,10 +4,24 @@ from model.citizens import Citizen
 
 class Import:
 
-    @staticmethod
-    async def get_citizen_list(import_id, conn):
-        citizen_sql = 'select import_id, citizen_id, town, street, building, apartment, name, day, month, year, gender from citizens where import_id=%s', import_id
-        relations_sql = 'select citizen_id, related_citizen_id from relations where import_id=%s', import_id
+    def __init__(self, import_id, create_dt):
+        self.import_id = import_id
+        self.create_dt = create_dt
+
+    @classmethod
+    async def get_import(cls, import_id, conn):
+        import_sql = 'select import_id, create_dt from citizens.imports where import_id=%s', import_id
+        async with conn.cursor(aiomysql.DictCursor) as cursor:
+            await cursor.execute(*import_sql)
+            o = await cursor.fetchone()
+            if not o:
+                return None
+            return cls(**o)
+
+
+    async def get_citizen_list(self, conn):
+        citizen_sql = 'select import_id, citizen_id, town, street, building, apartment, name, day, month, year, gender from citizens where import_id=%s', self.import_id
+        relations_sql = 'select citizen_id, related_citizen_id from relations where import_id=%s', self.import_id
         async with conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(*citizen_sql)
             out_data = {c['citizen_id']: Citizen.from_db(**c) for c in await cursor.fetchall()}

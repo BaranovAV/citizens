@@ -1,10 +1,7 @@
 import inspect
-from aiohttp import web
 from aiohttp.http_exceptions import HttpBadRequest
 from aiohttp.web_exceptions import HTTPMethodNotAllowed
 from aiohttp.web_request import Request
-from multidict import MultiDict
-
 from validator.base import ValidationError
 
 DEFAULT_METHODS = ('GET', 'POST', 'PUT', 'DELETE', 'PATCH')
@@ -21,31 +18,6 @@ class RestEndpoint:
 
     def get_connection(self):
         return self.request.app['db_pool'].acquire()
-
-    @staticmethod
-    def json_response(func):
-        async def wrapped(*args, **kwargs):
-            return web.json_response(await func(*args, **kwargs))
-
-        return wrapped
-
-    @staticmethod
-    def file_response(*, headers, content_type='application/octet-stream'):
-        def decorator(func):
-            async def wrapped(*args, **kwargs):
-                data = await func(*args, **kwargs)
-
-                resp = web.StreamResponse(headers=MultiDict(headers))
-                resp.content_type = content_type
-                resp.content_length = len(data)
-                await resp.prepare(args[0].request)
-                await resp.write(data)
-
-                return resp
-
-            return wrapped
-
-        return decorator
 
     def __init__(self, request):
         self.methods = {}

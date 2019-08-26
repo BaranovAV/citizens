@@ -1,10 +1,9 @@
-import json
-import os
 import pytest
 import requests
 import pymysql
 from datetime import datetime
 from settings import db
+from model.imports import Import
 
 
 def setup_module(module):
@@ -15,12 +14,6 @@ def setup_module(module):
         cursor.execute('truncate table imports')
         cursor.execute('truncate table relations')
     print('disconnected from db!')
-
-
-@pytest.fixture(scope='module')
-def citizen_list():
-    with open(os.path.abspath('tests') + '/test-data.txt', 'r') as f:
-        yield json.loads(f.read())
 
 
 def test_import_citizens(citizen_list):
@@ -42,3 +35,13 @@ def test_get_citizens(citizen_list):
     print(datetime.now())
     assert resp_get.status_code == 200
     assert resp_get.json() == {'data': citizen_list}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('import_id,exist', [
+    pytest.param(1, True),
+    pytest.param(-1, False),
+])
+async def test_get_import(db_connection,import_id,exist):
+    i = await Import.get_import(import_id, db_connection)
+    assert (i is not None) == exist
