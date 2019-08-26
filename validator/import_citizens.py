@@ -41,11 +41,7 @@ async def validate_by_chunks(validator, data, field, CHUNK=100):
 
 
 async def _validate_chunk(validator, chunked_data):
-    chunked_data = validator.normalized(chunked_data)
-    _errors = _get_error_list(validator.errors)
-    if _errors:
-        return [], _errors
-    validator.validate(chunked_data)
+    chunked_data = validator.validated(chunked_data)
     _errors = _get_error_list(validator.errors)
     return chunked_data, _errors
 
